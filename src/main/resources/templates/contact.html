@@ -1,7 +1,9 @@
 <h1>Contact Us</h1>
-<form action="save-contact" method="POST">
-  <!-- input name attributes must match model's properties -->
-  <input type="text" name="fname" placeholder="First Name">
-  <input type="text" name="lname" placeholder="Last Name">
+<ul>
+  <li th:each="error : ${#fields.errors('contact.*')}" th:text="${error}"></li>
+</ul>
+<form th:action="@{/save-contact}" method="POST" th:object="${contact}">
+  <input type="text" th:field="*{name}" placeholder="Name">
+  <input type="text" th:field="*{email}" placeholder="Email">
   <input type="submit">
 </form>

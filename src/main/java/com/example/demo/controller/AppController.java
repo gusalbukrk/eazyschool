@@ -5,13 +5,17 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.demo.model.Contact;
 import com.example.demo.model.Holiday;
+
+import jakarta.validation.Valid;
 
 @Controller
 public class AppController {
@@ -22,7 +26,8 @@ public class AppController {
   }
 
   @GetMapping("/contact")
-  public String displayContactPage() {
+  public String displayContactPage(Model model) {
+    model.addAttribute("contact", new Contact());
     return "contact";
   }
 
@@ -35,19 +40,25 @@ public class AppController {
   // }
 
   @PostMapping("/save-contact")
-  public String saveContact(@ModelAttribute Contact contact) {
-    System.out.println("Saving contact: " + contact.fname + " " + contact.lname);
+  public String saveContact(@Valid @ModelAttribute Contact contact, Errors errors) {
+    if (errors.hasErrors()) {
+      System.out.println(errors.toString());
+      return "contact.html";
+    }
+
+    System.out.println("Saving contact: " + contact.name + " " + contact.email);
     return "redirect:/contact";
   }
 
-  @GetMapping("/holidays")
-  public String displayHolidaysPage(Model model) {
+  @GetMapping({ "/holidays", "/holidays/{type}" }) // both are need because variable is optional
+  public String displayHolidaysPage(@PathVariable(required = false /* defaults to true */) String type, Model model) {
     List<Holiday> holidays = Arrays.asList(
         new Holiday("Jan 01", "New Year's Day", Holiday.Type.FESTIVAL),
         new Holiday("Oct 31", "Halloween", Holiday.Type.FESTIVAL),
         new Holiday("July 4", "Independency Day", Holiday.Type.FEDERAL),
         new Holiday("Sep 5", "Labor Day", Holiday.Type.FEDERAL));
 
+    model.addAttribute("type", type);
     model.addAttribute("holidays", holidays);
     return "holidays";
   }
