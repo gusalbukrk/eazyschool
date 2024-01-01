@@ -14,13 +14,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.demo.model.Contact;
 import com.example.demo.model.Holiday;
+import com.example.demo.service.ContactService;
 
 import jakarta.validation.Valid;
 
 @Controller
 public class AppController {
+  public ContactService contactService;
+
+  public AppController(ContactService contactService) {
+    this.contactService = contactService;
+  }
+
   @RequestMapping({ "/", "/home" })
   public String displayHomePage(Model model) {
+    // throw new RuntimeException("Something went wrong.");
     model.addAttribute("username", "John");
     return "home";
   }
@@ -46,8 +54,9 @@ public class AppController {
       return "contact.html";
     }
 
-    System.out.println("Saving contact: " + contact.name + " " + contact.email);
-    return "redirect:/contact";
+    return contactService.saveContact(contact);
+    // System.out.println("Saving contact: " + contact.name + " " + contact.email);
+    // return "redirect:/contact";
   }
 
   @GetMapping({ "/holidays", "/holidays/{type}" }) // both are need because variable is optional
@@ -62,4 +71,10 @@ public class AppController {
     model.addAttribute("holidays", holidays);
     return "holidays";
   }
+
+  // @ExceptionHandler
+  // public String handleException(Exception ex, Model model) {
+  // model.addAttribute("message", ex.getMessage());
+  // return "error_page";
+  // }
 }
